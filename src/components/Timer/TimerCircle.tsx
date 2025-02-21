@@ -10,7 +10,10 @@ interface TimerCircleProps {
   onStart?: () => void;
   onPause?: () => void;
   onReset?: () => void;
+  onStep?: () => void;
   phase?: "work" | "break";
+  timeLeft?: number;
+  setTimeLeft?: (value: number) => void;
 }
 
 const TimerCircle = ({
@@ -21,8 +24,13 @@ const TimerCircle = ({
   onReset = () => {},
   onStep = () => {},
   phase = "work",
+  timeLeft = duration,
+  setTimeLeft = () => {},
 }: TimerCircleProps) => {
-  const [timeLeft, setTimeLeft] = useState(duration);
+  useEffect(() => {
+    setTimeLeft(duration);
+  }, [duration]);
+
   const [progress, setProgress] = useState(100);
 
   useEffect(() => {

@@ -1,9 +1,9 @@
 import React from "react";
+import { motion } from "framer-motion";
 import { Checkbox } from "../ui/checkbox";
 import { cn } from "@/lib/utils";
 import { GripVertical, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
-import { motion } from "framer-motion";
 
 interface TaskItemProps {
   id?: string;

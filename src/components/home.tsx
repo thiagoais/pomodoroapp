@@ -13,11 +13,13 @@ const Home = () => {
   const [currentPhase, setCurrentPhase] = useState<"work" | "break">("work");
   const [workDuration, setWorkDuration] = useState(25);
   const [breakDuration, setBreakDuration] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(workDuration * 60);
   const [pomodoroCount, setPomodoroCount] = useState(0);
   const { theme, setTheme } = useTheme();
 
   const handleStart = () => setIsRunning(true);
   const handlePause = () => setIsRunning(false);
+
   const handleReset = () => {
     setIsRunning(false);
     if (currentPhase === "work") {
@@ -30,7 +32,26 @@ const Home = () => {
   const handleStep = () => {
     setIsRunning(false);
     setCurrentPhase(currentPhase === "work" ? "break" : "work");
+    setTimeLeft(
+      currentPhase === "work" ? breakDuration * 60 : workDuration * 60,
+    );
   };
+
+  const handleApplySettings = () => {
+    setTimeLeft(
+      currentPhase === "work" ? workDuration * 60 : breakDuration * 60,
+    );
+  };
+
+  useEffect(() => {
+    if (timeLeft === 0) {
+      setIsRunning(false);
+      if (currentPhase === "work") {
+        setPomodoroCount((prev) => prev + 1);
+      }
+      handleStep();
+    }
+  }, [timeLeft]);
 
   return (
     <motion.div
@@ -87,6 +108,8 @@ const Home = () => {
                 onReset={handleReset}
                 onStep={handleStep}
                 phase={currentPhase}
+                timeLeft={timeLeft}
+                setTimeLeft={setTimeLeft}
               />
             </motion.div>
 
@@ -101,6 +124,7 @@ const Home = () => {
               currentPhase={currentPhase}
               onWorkDurationChange={setWorkDuration}
               onBreakDurationChange={setBreakDuration}
+              onApplySettings={handleApplySettings}
             />
           </div>
 
