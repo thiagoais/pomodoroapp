@@ -33,7 +33,7 @@ export default {
 - Create the app using CPanel Nodejs app tool (use latest node version)
 - clone the application to the folder
 - run:
-```sh
+```bash
 npm install
 RAYON_NUM_THREADS=1 npm run build
 mv dist/* /home/<user>/public_html/
