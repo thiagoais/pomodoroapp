@@ -59,20 +59,22 @@ const Home = () => {
       animate={{ opacity: 1 }}
       className="min-h-screen w-full bg-gradient-to-b from-background to-background/80 p-8"
     >
-      <div className="max-w-7xl mx-auto space-y-12">
+      <div className="max-w-7xl mx-auto space-y-12 relative">
         <motion.div
           initial={{ y: 20 }}
           animate={{ y: 0 }}
           className="text-center space-y-4"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-4xl font-bold tracking-tight">
+          <div className="flex justify-between items-center mb-4">
+            <div className="w-10"></div> {/* Spacer */}
+            <h1 className="text-4xl font-bold tracking-tight flex-grow text-center">
               Pomodoro Timer
             </h1>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="w-10"
             >
               {theme === "dark" ? (
                 <Sun className="h-5 w-5" />
