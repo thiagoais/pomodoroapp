@@ -1,7 +1,8 @@
 import React from "react";
 import { Checkbox } from "../ui/checkbox";
 import { cn } from "@/lib/utils";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Trash2 } from "lucide-react";
+import { Button } from "../ui/button";
 import { motion } from "framer-motion";
 
 interface TaskItemProps {
@@ -12,6 +13,7 @@ interface TaskItemProps {
   onDragStart?: () => void;
   onDragEnd?: () => void;
   isDragging?: boolean;
+  onDelete?: () => void;
 }
 
 const TaskItem = ({
@@ -22,13 +24,21 @@ const TaskItem = ({
   onDragStart = () => {},
   onDragEnd = () => {},
   isDragging = false,
+  onDelete = () => {},
 }: TaskItemProps) => {
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
+      exit={{
+        opacity: 0,
+        x: -100,
+        transition: {
+          duration: 0.3,
+          ease: "anticipate",
+        },
+      }}
       className={cn(
         "flex items-center gap-4 p-4 rounded-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
         "border border-border hover:border-border/80 transition-colors",
@@ -60,6 +70,14 @@ const TaskItem = ({
       >
         {text}
       </label>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="text-muted-foreground hover:text-destructive"
+        onClick={onDelete}
+      >
+        <Trash2 size={18} />
+      </Button>
     </motion.div>
   );
 };

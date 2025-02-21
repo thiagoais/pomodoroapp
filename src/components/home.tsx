@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
+import { Button } from "./ui/button";
+import { Moon, Sun } from "lucide-react";
+import PomodoroCounter from "./PomodoroCounter";
 import { motion } from "framer-motion";
 import TimerCircle from "./Timer/TimerCircle";
 import TimerControls from "./Timer/TimerControls";
@@ -9,12 +13,23 @@ const Home = () => {
   const [currentPhase, setCurrentPhase] = useState<"work" | "break">("work");
   const [workDuration, setWorkDuration] = useState(25);
   const [breakDuration, setBreakDuration] = useState(5);
+  const [pomodoroCount, setPomodoroCount] = useState(0);
+  const { theme, setTheme } = useTheme();
 
   const handleStart = () => setIsRunning(true);
   const handlePause = () => setIsRunning(false);
   const handleReset = () => {
     setIsRunning(false);
-    setCurrentPhase("work");
+    if (currentPhase === "work") {
+      setTimeLeft(workDuration * 60);
+    } else {
+      setTimeLeft(breakDuration * 60);
+    }
+  };
+
+  const handleStep = () => {
+    setIsRunning(false);
+    setCurrentPhase(currentPhase === "work" ? "break" : "work");
   };
 
   return (
@@ -29,7 +44,22 @@ const Home = () => {
           animate={{ y: 0 }}
           className="text-center space-y-4"
         >
-          <h1 className="text-4xl font-bold tracking-tight">Pomodoro Timer</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-4xl font-bold tracking-tight">
+              Pomodoro Timer
+            </h1>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
           <p className="text-muted-foreground text-lg">
             Stay focused and productive with our modern Pomodoro timer
           </p>
@@ -55,9 +85,15 @@ const Home = () => {
                 onStart={handleStart}
                 onPause={handlePause}
                 onReset={handleReset}
+                onStep={handleStep}
                 phase={currentPhase}
               />
             </motion.div>
+
+            <PomodoroCounter
+              count={pomodoroCount}
+              onReset={() => setPomodoroCount(0)}
+            />
 
             <TimerControls
               workDuration={workDuration}

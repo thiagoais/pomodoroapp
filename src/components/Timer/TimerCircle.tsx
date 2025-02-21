@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, RefreshCw } from "lucide-react";
+import { Play, Pause, RefreshCw, ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { Progress } from "../ui/progress";
 
@@ -19,6 +19,7 @@ const TimerCircle = ({
   onStart = () => {},
   onPause = () => {},
   onReset = () => {},
+  onStep = () => {},
   phase = "work",
 }: TimerCircleProps) => {
   const [timeLeft, setTimeLeft] = useState(duration);
@@ -48,9 +49,20 @@ const TimerCircle = ({
 
   return (
     <motion.div
-      initial={{ scale: 0.9, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      className="relative flex flex-col items-center justify-center w-[400px] h-[400px] bg-background rounded-full shadow-lg"
+      initial={{
+        scale: 0.9,
+        opacity: 0,
+        backgroundColor:
+          phase === "work" ? "rgb(254, 202, 202)" : "rgb(191, 219, 254)",
+      }}
+      animate={{
+        scale: 1,
+        opacity: 1,
+        backgroundColor:
+          phase === "work" ? "rgb(254, 202, 202)" : "rgb(191, 219, 254)",
+        transition: { duration: 0.5 },
+      }}
+      className="relative flex flex-col items-center justify-center w-[400px] h-[400px] rounded-full shadow-lg"
     >
       <div className="absolute inset-0">
         <svg
@@ -111,6 +123,9 @@ const TimerCircle = ({
           </Button>
           <Button variant="outline" size="icon" onClick={onReset}>
             <RefreshCw size={20} />
+          </Button>
+          <Button variant="outline" size="icon" onClick={onStep}>
+            <ArrowRight size={20} />
           </Button>
         </div>
       </motion.div>

@@ -5,6 +5,7 @@ import { Label } from "../ui/label";
 import { Badge } from "../ui/badge";
 import { motion } from "framer-motion";
 import { Clock, Coffee } from "lucide-react";
+import { useToast } from "../ui/use-toast";
 
 interface TimerControlsProps {
   workDuration?: number;
@@ -12,7 +13,11 @@ interface TimerControlsProps {
   currentPhase?: "work" | "break";
   onWorkDurationChange?: (value: number) => void;
   onBreakDurationChange?: (value: number) => void;
+  onApplySettings?: () => void;
 }
+
+const DEFAULT_WORK_DURATION = 25;
+const DEFAULT_BREAK_DURATION = 5;
 
 const TimerControls = ({
   workDuration = 25,
@@ -20,7 +25,9 @@ const TimerControls = ({
   currentPhase = "work",
   onWorkDurationChange = () => {},
   onBreakDurationChange = () => {},
+  onApplySettings = () => {},
 }: TimerControlsProps) => {
+  const { toast } = useToast();
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -82,10 +89,33 @@ const TimerControls = ({
         </div>
 
         <div className="flex justify-center gap-4">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              onWorkDurationChange(DEFAULT_WORK_DURATION);
+              onBreakDurationChange(DEFAULT_BREAK_DURATION);
+              toast({
+                title: "Settings Reset",
+                description:
+                  "Timer durations have been reset to default values.",
+              });
+            }}
+          >
             Reset to Default
           </Button>
-          <Button size="sm">Apply Changes</Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              onApplySettings();
+              toast({
+                title: "Settings Applied",
+                description: "Your timer settings have been updated.",
+              });
+            }}
+          >
+            Apply Changes
+          </Button>
         </div>
       </div>
     </motion.div>

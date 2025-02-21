@@ -46,6 +46,12 @@ const TaskList = ({
     setNewTaskText("");
   };
 
+  const handleDelete = (taskId: string) => {
+    const updatedTasks = tasks.filter((task) => task.id !== taskId);
+    setTasks(updatedTasks);
+    onTasksChange(updatedTasks);
+  };
+
   const handleComplete = (taskId: string) => {
     const updatedTasks = tasks.map((task) =>
       task.id === taskId ? { ...task, completed: !task.completed } : task,
@@ -94,6 +100,7 @@ const TaskList = ({
                 completed={task.completed}
                 onComplete={handleComplete}
                 isDragging={draggedTaskId === task.id}
+                onDelete={() => handleDelete(task.id)}
               />
             </Reorder.Item>
           ))}
