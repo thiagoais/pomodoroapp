@@ -35,6 +35,10 @@ const Home = () => {
     setTimeLeft(
       currentPhase === "work" ? breakDuration * 60 : workDuration * 60,
     );
+    if (currentPhase === "work") {
+      setPomodoroCount((prev) => prev + 1);
+    }
+    handleStart();
   };
 
   const handleApplySettings = () => {
@@ -46,9 +50,6 @@ const Home = () => {
   useEffect(() => {
     if (timeLeft === 0) {
       setIsRunning(false);
-      if (currentPhase === "work") {
-        setPomodoroCount((prev) => prev + 1);
-      }
       handleStep();
     }
   }, [timeLeft]);

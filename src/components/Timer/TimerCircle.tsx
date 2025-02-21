@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Play, Pause, RefreshCw, ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
-import { Progress } from "../ui/progress";
 
 interface TimerCircleProps {
   duration?: number;
@@ -137,11 +136,6 @@ const TimerCircle = ({
           </Button>
         </div>
       </motion.div>
-
-      <Progress
-        value={progress}
-        className="absolute bottom-0 left-0 right-0 h-1 rounded-none opacity-20"
-      />
     </motion.div>
   );
 };
