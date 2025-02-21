@@ -28,3 +28,13 @@ export default {
 - Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
 - Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
 - Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+
+## Deploy on CPanel
+- Create the app using CPanel Nodejs app tool (use latest node version)
+- clone the application to the folder
+- run:
+```sh
+npm install
+RAYON_NUM_THREADS=1 npm run build
+mv dist/* /home/<user>/public_html/
+```
