@@ -58,35 +58,6 @@ const Home = () => {
 
   return (
     <>
-      <Helmet>
-        <title>
-          Pomodoro Timer — Optimize Your Time
-        </title>
-        <meta
-          name="description"
-          content="Unlock your productivity potential with the Pomodoro Technique. Learn how to manage time effectively, increase focus, and achieve more in less time. Start your journey to success today!"
-        />
-        <meta
-          name="keywords"
-          content="Pomodoro Technique, Pomodoro Timer, time management, productivity, focus, work efficiency, procrastination, task management, time blocking, work-life balance"
-        />
-        <meta
-          property="og:title"
-          content="Pomodoro Timer — Optimize Your Time"
-        />
-        <meta
-          property="og:description"
-          content="Discover how the Pomodoro Technique can revolutionize your work habits. Boost focus, manage time effectively, and accomplish more. Perfect for professionals, students, and anyone looking to optimize their productivity in 2025."
-        />
-        <meta
-          name="twitter:title"
-          content="Pomodoro Timer — Optimize Your Time"
-        />
-        <meta
-          name="twitter:description"
-          content="Learn the secrets of time management with the Pomodoro Technique. Enhance focus, beat procrastination, and skyrocket your productivity. Start your efficiency journey now!"
-        />
-      </Helmet>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
