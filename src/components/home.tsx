@@ -60,8 +60,7 @@ const Home = () => {
     <>
       <Helmet>
         <title>
-          Master the Pomodoro Technique: Boost Productivity and Beat
-          Procrastination in 2025
+          Pomodoro Timer — Optimize Your Time
         </title>
         <meta
           name="description"
@@ -73,7 +72,7 @@ const Home = () => {
         />
         <meta
           property="og:title"
-          content="Transform Your Productivity with the Pomodoro Technique | 2025 Guide"
+          content="Pomodoro Timer — Optimize Your Time"
         />
         <meta
           property="og:description"
@@ -81,7 +80,7 @@ const Home = () => {
         />
         <meta
           name="twitter:title"
-          content="Pomodoro Technique: Your Key to Productivity Mastery in 2025"
+          content="Pomodoro Timer — Optimize Your Time"
         />
         <meta
           name="twitter:description"
