@@ -1,5 +1,5 @@
 export const playNotificationSound = () => {
-  const audio = new Audio("/notification.mp3");
+  const audio = new Audio("/notification.wav");
   audio.play().catch((error) => {
     console.error("Error playing notification sound:", error);
   });
