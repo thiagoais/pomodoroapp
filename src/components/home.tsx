@@ -7,8 +7,9 @@ import { motion } from "framer-motion";
 import TimerCircle from "./Timer/TimerCircle";
 import TimerControls from "./Timer/TimerControls";
 import TaskList from "./Tasks/TaskList";
-import { Helmet } from "react-helmet-async";
 import PageContent from "./PageContent";
+import { playNotificationSound, showNotification } from "@/lib/notification";
+import { toast } from "@/components/ui/use-toast";
 
 const Home = () => {
   const [isRunning, setIsRunning] = useState(false);
@@ -41,6 +42,21 @@ const Home = () => {
       setPomodoroCount((prev) => prev + 1);
     }
     handleStart();
+
+    // Notify when manually changing phases
+    const nextPhase = currentPhase === "work" ? "break" : "work";
+    const duration = nextPhase === "work" ? workDuration : breakDuration;
+
+    playNotificationSound();
+    showNotification(
+      `Manual Step: Starting ${nextPhase} Phase`,
+      `Timer set for ${duration} minutes.`,
+    );
+
+    toast({
+      title: `Manual Step: Starting ${nextPhase} Phase`,
+      description: `Timer set for ${duration} minutes.`,
+    });
   };
 
   const handleApplySettings = () => {
@@ -52,9 +68,38 @@ const Home = () => {
   useEffect(() => {
     if (timeLeft === 0) {
       setIsRunning(false);
+
+      // Play notification sound
+      playNotificationSound();
+
+      if (currentPhase === "work") {
+        // Work phase completed
+        setPomodoroCount((prev) => prev + 1);
+        showNotification(
+          "Work Phase Complete!",
+          `Great job! Take a ${breakDuration} minute break now.`,
+        );
+
+        toast({
+          title: "Work Phase Complete!",
+          description: `Great job! Take a ${breakDuration} minute break now.`,
+        });
+      } else {
+        // Break phase completed
+        showNotification(
+          "Break Phase Complete!",
+          `Time to focus! Starting a ${workDuration} minute work session.`,
+        );
+
+        toast({
+          title: "Break Phase Complete!",
+          description: `Time to focus! Starting a ${workDuration} minute work session.`,
+        });
+      }
+
       handleStep();
     }
-  }, [timeLeft]);
+  }, [timeLeft, currentPhase, workDuration, breakDuration]);
 
   return (
     <>
