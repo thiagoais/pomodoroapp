@@ -10,7 +10,11 @@ import { toast } from "@/components/ui/use-toast";
 interface TimerControlsProps {
   workDuration?: number;
   breakDuration?: number;
+  selectedWorkDuration?: number;
+  selectedBreakDuration?: number;
   currentPhase?: "work" | "break";
+  onSelectedWorkDurationChange?: (value: number) => void;
+  onSelectedBreakDurationChange?: (value: number) => void;
   onWorkDurationChange?: (value: number) => void;
   onBreakDurationChange?: (value: number) => void;
   onApplySettings?: () => void;
@@ -22,9 +26,13 @@ const DEFAULT_BREAK_DURATION = 5;
 const TimerControls = ({
   workDuration = 25,
   breakDuration = 5,
+  selectedWorkDuration = 25,
+  selectedBreakDuration = 5,
   currentPhase = "work",
   onWorkDurationChange = () => {},
   onBreakDurationChange = () => {},
+  onSelectedWorkDurationChange = () => {},
+  onSelectedBreakDurationChange = () => {},
   onApplySettings = () => {},
 }: TimerControlsProps) => {
   return (
@@ -55,16 +63,16 @@ const TimerControls = ({
           <div className="flex justify-between items-center">
             <Label htmlFor="work-duration">Work Duration</Label>
             <span className="text-sm text-muted-foreground">
-              {workDuration} min
+              {selectedWorkDuration} min
             </span>
           </div>
           <Slider
             id="work-duration"
-            min={1}
+            min={0.1}
             max={60}
-            step={1}
-            value={[workDuration]}
-            onValueChange={(value) => onWorkDurationChange(value[0])}
+            step={0.1}
+            value={[selectedWorkDuration]}
+            onValueChange={(value) => onSelectedWorkDurationChange(value[0])}
             className="w-full"
           />
         </div>
@@ -73,16 +81,16 @@ const TimerControls = ({
           <div className="flex justify-between items-center">
             <Label htmlFor="break-duration">Break Duration</Label>
             <span className="text-sm text-muted-foreground">
-              {breakDuration} min
+              {selectedBreakDuration} min
             </span>
           </div>
           <Slider
             id="break-duration"
-            min={1}
+            min={0.1}
             max={30}
-            step={1}
-            value={[breakDuration]}
-            onValueChange={(value) => onBreakDurationChange(value[0])}
+            step={0.1}
+            value={[selectedBreakDuration]}
+            onValueChange={(value) => onSelectedBreakDurationChange(value[0])}
             className="w-full"
           />
         </div>
@@ -92,8 +100,8 @@ const TimerControls = ({
             variant="outline"
             size="sm"
             onClick={() => {
-              onWorkDurationChange(DEFAULT_WORK_DURATION);
-              onBreakDurationChange(DEFAULT_BREAK_DURATION);
+              onSelectedWorkDurationChange(DEFAULT_WORK_DURATION);
+              onSelectedBreakDurationChange(DEFAULT_BREAK_DURATION);
               toast({
                 title: "Settings Reset",
                 description:

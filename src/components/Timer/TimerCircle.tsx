@@ -1,53 +1,37 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Play, Pause, RefreshCw, ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface TimerCircleProps {
-  duration?: number;
-  isRunning?: boolean;
-  onStart?: () => void;
-  onPause?: () => void;
-  onReset?: () => void;
-  onStep?: () => void;
-  phase?: "work" | "break";
-  timeLeft?: number;
-  setTimeLeft?: (value: number) => void;
+  duration: number; // Total duration of the timer in seconds
+  isRunning: boolean; // Whether the timer is running
+  onStart: () => void; // Callback to start the timer
+  onPause: () => void; // Callback to pause the timer
+  onReset: () => void; // Callback to reset the timer
+  onStep: () => void; // Callback to manually step to the next phase
+  phase: "work" | "break"; // Current phase of the timer
+  timeLeft: number; // Time left in seconds
 }
 
-const TimerCircle = ({
-  duration = 1500, // 25 minutes in seconds
-  isRunning = false,
-  onStart = () => {},
-  onPause = () => {},
-  onReset = () => {},
-  onStep = () => {},
-  phase = "work",
-  timeLeft = duration,
-  setTimeLeft = () => {},
-}: TimerCircleProps) => {
+const TimerCircle: React.FC<TimerCircleProps> = ({
+  duration,
+  isRunning,
+  onStart,
+  onPause,
+  onReset,
+  onStep,
+  phase,
+  timeLeft,
+}) => {
+  const [progress, setProgress] = useState(100); // Progress percentage for the circular progress bar
+
+  // Update progress whenever `timeLeft` or `duration` changes
   useEffect(() => {
-    setTimeLeft(duration);
-  }, [duration]);
+    setProgress((timeLeft / duration) * 100);
+  }, [timeLeft, duration]);
 
-  const [progress, setProgress] = useState(100);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => {
-          const newTime = prev - 1;
-          setProgress((newTime / duration) * 100);
-          return newTime;
-        });
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [isRunning, timeLeft, duration]);
-
+  // Format time (seconds) into MM:SS format
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -60,7 +44,7 @@ const TimerCircle = ({
         scale: 0.9,
         opacity: 0,
         backgroundColor:
-          phase === "work" ? "rgb(254, 202, 202)" : "rgb(191, 219, 254)",
+          phase === "work" ? "rgb(254, 202, 202)" : "rgb(191, 219, 254)", // Different colors for work and break phases
       }}
       animate={{
         scale: 1,
@@ -71,11 +55,13 @@ const TimerCircle = ({
       }}
       className="relative flex flex-col items-center justify-center w-[400px] h-[400px] rounded-full shadow-lg"
     >
+      {/* Circular Progress Bar */}
       <div className="absolute inset-0">
         <svg
           className="w-full h-full transform -rotate-90"
           viewBox="0 0 100 100"
         >
+          {/* Background Circle */}
           <circle
             className="text-muted-foreground/20"
             cx="50"
@@ -85,6 +71,7 @@ const TimerCircle = ({
             fill="none"
             stroke="currentColor"
           />
+          {/* Progress Circle */}
           <motion.circle
             className="text-primary"
             cx="50"
@@ -101,11 +88,13 @@ const TimerCircle = ({
         </svg>
       </div>
 
+      {/* Timer Content */}
       <motion.div
         className="relative flex flex-col items-center gap-6 text-center z-10"
         animate={{ scale: isRunning ? 1.05 : 1 }}
         transition={{ duration: 0.5 }}
       >
+        {/* Time Left */}
         <motion.span
           className="text-6xl font-bold tracking-tighter"
           key={timeLeft}
@@ -116,11 +105,14 @@ const TimerCircle = ({
           {formatTime(timeLeft)}
         </motion.span>
 
+        {/* Phase Label */}
         <span className="text-xl font-medium text-muted-foreground capitalize">
           {phase} Phase
         </span>
 
+        {/* Control Buttons */}
         <div className="flex gap-2">
+          {/* Play/Pause Button */}
           <Button
             variant="outline"
             size="icon"
@@ -128,9 +120,13 @@ const TimerCircle = ({
           >
             {isRunning ? <Pause size={20} /> : <Play size={20} />}
           </Button>
+
+          {/* Reset Button */}
           <Button variant="outline" size="icon" onClick={onReset}>
             <RefreshCw size={20} />
           </Button>
+
+          {/* Step Button */}
           <Button variant="outline" size="icon" onClick={onStep}>
             <ArrowRight size={20} />
           </Button>

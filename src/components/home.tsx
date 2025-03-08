@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// components/Home.tsx
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTheme } from "next-themes";
 import { Button } from "./ui/button";
 import { Moon, Sun } from "lucide-react";
@@ -16,90 +17,127 @@ const Home = () => {
   const [currentPhase, setCurrentPhase] = useState<"work" | "break">("work");
   const [workDuration, setWorkDuration] = useState(25);
   const [breakDuration, setBreakDuration] = useState(5);
+  const [selectedWorkDuration, setSelectedWorkDuration] = useState(25);
+  const [selectedBreakDuration, setSelectedBreakDuration] = useState(5);
   const [timeLeft, setTimeLeft] = useState(workDuration * 60);
   const [pomodoroCount, setPomodoroCount] = useState(0);
   const { theme, setTheme } = useTheme();
-
-  const handleStart = () => setIsRunning(true);
-  const handlePause = () => setIsRunning(false);
-
-  const handleReset = () => {
-    setIsRunning(false);
-    if (currentPhase === "work") {
-      setTimeLeft(workDuration * 60);
-    } else {
-      setTimeLeft(breakDuration * 60);
-    }
-  };
-
-  const handleStep = () => {
-    setIsRunning(false);
-    setCurrentPhase(currentPhase === "work" ? "break" : "work");
-    setTimeLeft(
-      currentPhase === "work" ? breakDuration * 60 : workDuration * 60,
-    );
-    if (currentPhase === "work") {
-      setPomodoroCount((prev) => prev + 1);
-    }
-    handleStart();
-
-    // Notify when manually changing phases
-    const nextPhase = currentPhase === "work" ? "break" : "work";
-    const duration = nextPhase === "work" ? workDuration : breakDuration;
-
-    playNotificationSound();
-    showNotification(
-      `Manual Step: Starting ${nextPhase} Phase`,
-      `Timer set for ${duration} minutes.`,
-    );
-
-    toast({
-      title: `Manual Step: Starting ${nextPhase} Phase`,
-      description: `Timer set for ${duration} minutes.`,
-    });
-  };
-
-  const handleApplySettings = () => {
-    setTimeLeft(
-      currentPhase === "work" ? workDuration * 60 : breakDuration * 60,
-    );
-  };
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const workerRef = useRef<Worker | null>(null);
+  const currentPhaseRef = useRef(currentPhase);
+  const isTransitioningRef = useRef(false);
 
   useEffect(() => {
-    if (timeLeft === 0) {
-      setIsRunning(false);
+    currentPhaseRef.current = currentPhase;
+  }, [currentPhase]);
 
-      // Play notification sound
-      playNotificationSound();
+  useEffect(() => {
+    workerRef.current = new Worker("/timer-worker.js");
 
-      if (currentPhase === "work") {
-        // Work phase completed
-        setPomodoroCount((prev) => prev + 1);
-        showNotification(
-          "Work Phase Complete!",
-          `Great job! Take a ${breakDuration} minute break now.`,
-        );
-
-        toast({
-          title: "Work Phase Complete!",
-          description: `Great job! Take a ${breakDuration} minute break now.`,
-        });
-      } else {
-        // Break phase completed
-        showNotification(
-          "Break Phase Complete!",
-          `Time to focus! Starting a ${workDuration} minute work session.`,
-        );
-
-        toast({
-          title: "Break Phase Complete!",
-          description: `Time to focus! Starting a ${workDuration} minute work session.`,
-        });
+    workerRef.current.onmessage = (e) => {
+      if (e.data.action === "tick") {
+        setTimeLeft(e.data.timeLeft);
+      } else if (e.data.action === "complete") {
+        if (!isTransitioningRef.current) {
+          isTransitioningRef.current = true;
+          handleStep();
+        }
       }
+    };
 
-      handleStep();
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
+    };
+  }, []);
+
+  const handleStart = useCallback(() => {
+    setIsRunning(true);
+    workerRef.current?.postMessage({ action: "start", timeLeft });
+  }, [timeLeft]);
+
+  const handlePause = useCallback(() => {
+    setIsRunning(false);
+    workerRef.current?.postMessage({ action: "stop" });
+  }, []);
+
+  const handleStep = useCallback(() => {
+    const nextPhase = currentPhaseRef.current === "work" ? "break" : "work";
+    const newDuration = nextPhase === "work" ? workDuration : breakDuration;
+    setCurrentPhase(nextPhase);
+    setTimeLeft(newDuration * 60);
+    setIsRunning(true);
+
+    if (currentPhaseRef.current === "work") {
+      setPomodoroCount((prev) => prev + 1);
     }
-  }, [timeLeft, currentPhase, workDuration, breakDuration]);
+
+    playNotificationSound(audioRef.current);
+    showNotification(
+      `Switching to ${nextPhase} Phase`,
+      `Timer set for ${newDuration} minutes.`,
+    );
+    toast({
+      title: `Switching to ${nextPhase} Phase`,
+      description: `Timer set for ${newDuration} minutes.`,
+    });
+
+    workerRef.current?.postMessage({
+      action: "reset",
+      timeLeft: newDuration * 60,
+    });
+    workerRef.current?.postMessage({
+      action: "start",
+      timeLeft: newDuration * 60,
+    });
+
+    setTimeout(() => {
+      isTransitioningRef.current = false;
+    }, 100);
+  }, [workDuration, breakDuration]);
+
+  const handleReset = useCallback(() => {
+    setIsRunning(false);
+    workerRef.current?.postMessage({ action: "stop" });
+    const resetDuration =
+      currentPhase === "work" ? workDuration : breakDuration;
+    setTimeLeft(resetDuration * 60);
+    workerRef.current?.postMessage({
+      action: "reset",
+      timeLeft: resetDuration * 60,
+    });
+  }, [currentPhase, workDuration, breakDuration]);
+
+  const handleApplySettings = useCallback(() => {
+    const newWorkDuration = selectedWorkDuration;
+    const newBreakDuration = selectedBreakDuration;
+
+    setWorkDuration(newWorkDuration);
+    setBreakDuration(newBreakDuration);
+
+    // Calculate the new timeLeft based on the current phase and the new duration
+    const newTimeLeft =
+      currentPhase === "work" ? newWorkDuration * 60 : newBreakDuration * 60;
+
+    // Update the timeLeft state
+    setTimeLeft(newTimeLeft);
+
+    // If the timer is running, stop it and restart with the new duration
+    if (isRunning) {
+      workerRef.current?.postMessage({ action: "stop" });
+      workerRef.current?.postMessage({
+        action: "start",
+        timeLeft: newTimeLeft,
+      });
+    } else {
+      // If the timer is not running, just reset it with the new duration
+      workerRef.current?.postMessage({
+        action: "reset",
+        timeLeft: newTimeLeft,
+      });
+    }
+  }, [selectedWorkDuration, selectedBreakDuration, currentPhase, isRunning]);
 
   return (
     <>
@@ -160,7 +198,6 @@ const Home = () => {
                   onStep={handleStep}
                   phase={currentPhase}
                   timeLeft={timeLeft}
-                  setTimeLeft={setTimeLeft}
                 />
               </motion.div>
 
@@ -172,9 +209,13 @@ const Home = () => {
               <TimerControls
                 workDuration={workDuration}
                 breakDuration={breakDuration}
+                selectedWorkDuration={selectedWorkDuration}
+                selectedBreakDuration={selectedBreakDuration}
                 currentPhase={currentPhase}
                 onWorkDurationChange={setWorkDuration}
                 onBreakDurationChange={setBreakDuration}
+                onSelectedWorkDurationChange={setSelectedWorkDuration}
+                onSelectedBreakDurationChange={setSelectedBreakDuration}
                 onApplySettings={handleApplySettings}
               />
             </div>
