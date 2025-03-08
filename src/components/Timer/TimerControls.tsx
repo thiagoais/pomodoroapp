@@ -68,9 +68,9 @@ const TimerControls = ({
           </div>
           <Slider
             id="work-duration"
-            min={0.1}
+            min={1}
             max={60}
-            step={0.1}
+            step={1}
             value={[selectedWorkDuration]}
             onValueChange={(value) => onSelectedWorkDurationChange(value[0])}
             className="w-full"
@@ -86,9 +86,9 @@ const TimerControls = ({
           </div>
           <Slider
             id="break-duration"
-            min={0.1}
+            min={1}
             max={30}
-            step={0.1}
+            step={1}
             value={[selectedBreakDuration]}
             onValueChange={(value) => onSelectedBreakDurationChange(value[0])}
             className="w-full"
