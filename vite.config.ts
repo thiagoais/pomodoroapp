@@ -35,8 +35,4 @@ export default defineConfig({
     // @ts-ignore
     allowedHosts: true,
   },
-  build: {
-    minify: "terser",
-    sourcemap: false,
-  },
 });
